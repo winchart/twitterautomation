@@ -101,7 +101,6 @@
     const MASTER_KEY = "MY_TWITTER_SECRET_MASTER_KEY_2026";
     const BACKEND_URL = "http://78.154.103.48:9768";
 
-    // LocalStorage থেকে আগের ডেটা লোড করা
     let profiles = JSON.parse(localStorage.getItem('twitter_profiles')) || [];
     let savedPost = JSON.parse(localStorage.getItem('twitter_saved_post')) || { text: "", imageName: "কোনো ছবি নেই" };
 
@@ -130,9 +129,8 @@
 
     window.onload = function() {
         checkMasterConnection();
-        updateProfileUI(); // পেজ লোড হলেই সেভ থাকা প্রোফাইলগুলো দেখাবে
+        updateProfileUI();
         
-        // যদি আগে কোনো পোস্ট সেভ করা থাকে তা প্রিভিউতে দেখাবে
         if(savedPost.text) {
             document.getElementById('previewText').innerText = savedPost.text;
             document.getElementById('previewImage').innerText = "ফাইল: " + savedPost.imageName;
@@ -167,7 +165,7 @@
             const result = await response.json();
             if(response.ok) {
                 profiles = result.profiles || [];
-                localStorage.setItem('twitter_profiles', JSON.stringify(profiles)); // ব্রাউজারে সেভ হলো
+                localStorage.setItem('twitter_profiles', JSON.stringify(profiles));
                 updateProfileUI();
                 alert(result.message || "সফলভাবে লগইন হয়েছে!");
             } else {
@@ -199,14 +197,13 @@
 
     function deleteProfile(index) {
         profiles.splice(index, 1);
-        localStorage.setItem('twitter_profiles', JSON.stringify(profiles)); // আপডেট সেভ
+        localStorage.setItem('twitter_profiles', JSON.stringify(profiles));
         updateProfileUI();
     }
 
     function openModal() { document.getElementById('postModal').style.display = 'flex'; }
     function closeModal() { document.getElementById('postModal').style.display = 'none'; }
 
-    // গ্লোবাল ভেরিয়েবল ইমেজ ফাইল রাখার জন্য
     let selectedImageFile = null;
 
     function savePostData() {
@@ -222,7 +219,7 @@
             savedPost.imageName = "কোনো ছবি নেই";
         }
 
-        localStorage.setItem('twitter_saved_post', JSON.stringify(savedPost)); // সেভ হলো
+        localStorage.setItem('twitter_saved_post', JSON.stringify(savedPost));
 
         document.getElementById('previewText').innerText = savedPost.text;
         document.getElementById('previewImage').innerText = "ফাইল: " + savedPost.imageName;
@@ -264,6 +261,6 @@
             btn.disabled = false;
         }
     }
-</script>
+    </script>
 </body>
 </html>
