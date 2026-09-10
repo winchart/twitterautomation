@@ -98,155 +98,172 @@
     </div>
 
     <script>
-        const MASTER_KEY = "MY_TWITTER_SECRET_MASTER_KEY_2026";
-        const BACKEND_URL = "http://78.154.103.48:9768";
+    const MASTER_KEY = "MY_TWITTER_SECRET_MASTER_KEY_2026";
+    const BACKEND_URL = "http://78.154.103.48:9768";
 
-        let profiles = [];
-        let savedPost = { text: "", imageFile: null, imageName: "" };
+    // LocalStorage থেকে আগের ডেটা লোড করা
+    let profiles = JSON.parse(localStorage.getItem('twitter_profiles')) || [];
+    let savedPost = JSON.parse(localStorage.getItem('twitter_saved_post')) || { text: "", imageName: "কোনো ছবি নেই" };
 
-        async function checkMasterConnection() {
-            const indicator = document.getElementById('statusIndicator');
-            const statusText = document.getElementById('statusText');
+    async function checkMasterConnection() {
+        const indicator = document.getElementById('statusIndicator');
+        const statusText = document.getElementById('statusText');
 
-            try {
-                const response = await fetch(`${BACKEND_URL}/`, {
-                    method: 'GET',
-                    headers: { 'X-Master-Key': MASTER_KEY }
-                });
-                const result = await response.json();
-                if (response.ok) {
-                    indicator.className = "indicator online";
-                    statusText.innerText = "সক্রিয় ও সংযুক্ত";
-                    statusText.style.color = "#28a745";
-                } else {
-                    throw new Error();
-                }
-            } catch (err) {
-                indicator.className = "indicator offline";
-                statusText.innerText = "সংযোগ বিচ্ছিন্ন";
-                statusText.style.color = "#dc3545";
-            }
-        }
-
-        window.onload = checkMasterConnection;
-
-        async function startLogin() {
-            const usernamesText = document.getElementById('usernames_box').value.trim();
-            const passwordsText = document.getElementById('passwords_box').value.trim();
-
-            if(!usernamesText || !passwordsText) { alert("ইউজারনেম ও পাসওয়ার্ড দিন!"); return; }
-
-            const users = usernamesText.split('\n').map(u => u.trim()).filter(u => u);
-            const passes = passwordsText.split('\n').map(p => p.trim()).filter(p => p);
-
-            const btn = document.getElementById('loginBtn');
-            btn.innerText = "লগইন প্রসেসিং হচ্ছে...";
-            btn.disabled = true;
-
-            try {
-                const response = await fetch(`${BACKEND_URL}/login-profiles`, {
-                    method: 'POST',
-                    headers: { 
-                        'Content-Type': 'application/json',
-                        'X-Master-Key': MASTER_KEY 
-                    },
-                    body: JSON.stringify({ users, passes })
-                });
-                
-                const result = await response.json();
-                if(response.ok) {
-                    profiles = result.profiles || [];
-                    updateProfileUI();
-                    alert(result.message || "সফলভাবে লগইন হয়েছে!");
-                } else {
-                    alert("ত্রুটি: " + (result.message || "লগইন ব্যর্থ হয়েছে"));
-                }
-            } catch (err) {
-                alert("সার্ভারের সাথে যোগাযোগ করতে সমস্যা হয়েছে!");
-            } finally {
-                btn.innerText = "🔄 লগইন করে প্রোফাইল তৈরি করুন";
-                btn.disabled = false;
-            }
-        }
-
-        function updateProfileUI() {
-            const container = document.getElementById('profileListContainer');
-            if(profiles.length === 0) {
-                container.innerHTML = '<div style="color: #888; text-align: center; padding: 10px;">কোনো প্রোফাইল তৈরি হয়নি</div>';
-                return;
-            }
-            container.innerHTML = '';
-            profiles.forEach((prof, index) => {
-                container.innerHTML += `
-                    <div class="account-item">
-                        <span><b>প্রোফাইল ${index + 1}:</b> ${prof.username || prof}</span>
-                        <button class="delete-btn" onclick="deleteProfile(${index})" title="ডিলিট করুন">✕</button>
-                    </div>`;
+        try {
+            const response = await fetch(`${BACKEND_URL}/`, {
+                method: 'GET',
+                headers: { 'X-Master-Key': MASTER_KEY }
             });
-        }
-
-        function deleteProfile(index) {
-            profiles.splice(index, 1);
-            updateProfileUI();
-        }
-
-        function openModal() { document.getElementById('postModal').style.display = 'flex'; }
-        function closeModal() { document.getElementById('postModal').style.display = 'none'; }
-
-        function savePostData() {
-            const text = document.getElementById('modal_post_text').value.trim();
-            const imageInput = document.getElementById('modal_post_image');
-            if(!text) { alert("পোস্টের টেক্সট লিখুন!"); return; }
-
-            savedPost.text = text;
-            if(imageInput.files.length > 0) {
-                savedPost.imageFile = imageInput.files[0];
-                savedPost.imageName = imageInput.files[0].name;
+            if (response.ok) {
+                indicator.className = "indicator online";
+                statusText.innerText = "সক্রিয় ও সংযুক্ত";
+                statusText.style.color = "#28a745";
             } else {
-                savedPost.imageFile = null;
-                savedPost.imageName = "কোনো ছবি নেই";
+                throw new Error();
             }
+        } catch (err) {
+            indicator.className = "indicator offline";
+            statusText.innerText = "সংযোগ বিচ্ছিন্ন";
+            statusText.style.color = "#dc3545";
+        }
+    }
 
+    window.onload = function() {
+        checkMasterConnection();
+        updateProfileUI(); // পেজ লোড হলেই সেভ থাকা প্রোফাইলগুলো দেখাবে
+        
+        // যদি আগে কোনো পোস্ট সেভ করা থাকে তা প্রিভিউতে দেখাবে
+        if(savedPost.text) {
             document.getElementById('previewText').innerText = savedPost.text;
             document.getElementById('previewImage').innerText = "ফাইল: " + savedPost.imageName;
             document.getElementById('postPreview').style.display = 'block';
-            alert("পোস্ট সেভ হয়েছে!");
-            closeModal();
+            document.getElementById('modal_post_text').value = savedPost.text;
+        }
+    };
+
+    async function startLogin() {
+        const usernamesText = document.getElementById('usernames_box').value.trim();
+        const passwordsText = document.getElementById('passwords_box').value.trim();
+
+        if(!usernamesText || !passwordsText) { alert("ইউজারনেম ও পাসওয়ার্ড দিন!"); return; }
+
+        const users = usernamesText.split('\n').map(u => u.trim()).filter(u => u);
+        const passes = passwordsText.split('\n').map(p => p.trim()).filter(p => p);
+
+        const btn = document.getElementById('loginBtn');
+        btn.innerText = "লগইন প্রসেসিং হচ্ছে...";
+        btn.disabled = true;
+
+        try {
+            const response = await fetch(`${BACKEND_URL}/login-profiles`, {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'X-Master-Key': MASTER_KEY 
+                },
+                body: JSON.stringify({ users, passes })
+            });
+            
+            const result = await response.json();
+            if(response.ok) {
+                profiles = result.profiles || [];
+                localStorage.setItem('twitter_profiles', JSON.stringify(profiles)); // ব্রাউজারে সেভ হলো
+                updateProfileUI();
+                alert(result.message || "সফলভাবে লগইন হয়েছে!");
+            } else {
+                alert("ত্রুটি: " + (result.message || "লগইন ব্যর্থ হয়েছে"));
+            }
+        } catch (err) {
+            alert("সার্ভারের সাথে যোগাযোগ করতে সমস্যা হয়েছে!");
+        } finally {
+            btn.innerText = "🔄 লগইন করে প্রোফাইল তৈরি করুন";
+            btn.disabled = false;
+        }
+    }
+
+    function updateProfileUI() {
+        const container = document.getElementById('profileListContainer');
+        if(profiles.length === 0) {
+            container.innerHTML = '<div style="color: #888; text-align: center; padding: 10px;">কোনো প্রোফাইল তৈরি হয়নি</div>';
+            return;
+        }
+        container.innerHTML = '';
+        profiles.forEach((prof, index) => {
+            container.innerHTML += `
+                <div class="account-item">
+                    <span><b>প্রোফাইল ${index + 1}:</b> ${prof.username || prof}</span>
+                    <button class="delete-btn" onclick="deleteProfile(${index})" title="ডিলিট করুন">✕</button>
+                </div>`;
+        });
+    }
+
+    function deleteProfile(index) {
+        profiles.splice(index, 1);
+        localStorage.setItem('twitter_profiles', JSON.stringify(profiles)); // আপডেট সেভ
+        updateProfileUI();
+    }
+
+    function openModal() { document.getElementById('postModal').style.display = 'flex'; }
+    function closeModal() { document.getElementById('postModal').style.display = 'none'; }
+
+    // গ্লোবাল ভেরিয়েবল ইমেজ ফাইল রাখার জন্য
+    let selectedImageFile = null;
+
+    function savePostData() {
+        const text = document.getElementById('modal_post_text').value.trim();
+        const imageInput = document.getElementById('modal_post_image');
+        if(!text) { alert("পোস্টের টেক্সট লিখুন!"); return; }
+
+        savedPost.text = text;
+        if(imageInput.files.length > 0) {
+            selectedImageFile = imageInput.files[0];
+            savedPost.imageName = imageInput.files[0].name;
+        } else {
+            savedPost.imageName = "কোনো ছবি নেই";
         }
 
-        async function startPosting() {
-            if(profiles.length === 0) { alert("আগে প্রোফাইল তৈরি করুন!"); return; }
-            if(!savedPost.text) { alert("আগে পোস্ট সেভ করুন!"); return; }
+        localStorage.setItem('twitter_saved_post', JSON.stringify(savedPost)); // সেভ হলো
 
-            const btn = document.querySelector('.btn-start');
-            btn.innerText = "পোস্টিং চলছে...";
-            btn.disabled = true;
+        document.getElementById('previewText').innerText = savedPost.text;
+        document.getElementById('previewImage').innerText = "ফাইল: " + savedPost.imageName;
+        document.getElementById('postPreview').style.display = 'block';
+        alert("পোস্ট সেভ হয়েছে!");
+        closeModal();
+    }
 
-            const formData = new FormData();
-            formData.append('profiles', JSON.stringify(profiles));
-            formData.append('post_text', savedPost.text);
-            if(savedPost.imageFile) {
-                formData.append('image', savedPost.imageFile);
-            }
+    async function startPosting() {
+        if(profiles.length === 0) { alert("আগে প্রোফাইল তৈরি করুন!"); return; }
+        if(!savedPost.text) { alert("আগে পোস্ট সেভ করুন!"); return; }
 
-            try {
-                const response = await fetch(`${BACKEND_URL}/start-posting`, {
-                    method: 'POST',
-                    headers: {
-                        'X-Master-Key': MASTER_KEY 
-                    },
-                    body: formData
-                });
-                
-                const result = await response.json();
-                alert(result.message || "পোস্টিং সম্পন্ন হয়েছে!");
-            } catch (err) {
-                alert("পোস্ট করতে সমস্যা হয়েছে!");
-            } finally {
-                btn.innerText = "🚀 Start Post (সব প্রোফাইলে পোস্ট শুরু করুন)";
-                btn.disabled = false;
-            }
+        const btn = document.querySelector('.btn-start');
+        btn.innerText = "পোস্টিং চলছে...";
+        btn.disabled = true;
+
+        const formData = new FormData();
+        formData.append('profiles', JSON.stringify(profiles));
+        formData.append('post_text', savedPost.text);
+        if(selectedImageFile) {
+            formData.append('image', selectedImageFile);
         }
-    </script>
+
+        try {
+            const response = await fetch(`${BACKEND_URL}/start-posting`, {
+                method: 'POST',
+                headers: {
+                    'X-Master-Key': MASTER_KEY 
+                },
+                body: formData
+            });
+            
+            const result = await response.json();
+            alert(result.message || "পোস্টিং সম্পন্ন হয়েছে!");
+        } catch (err) {
+            alert("পোস্ট করতে সমস্যা হয়েছে!");
+        } finally {
+            btn.innerText = "🚀 Start Post (সব প্রোফাইলে পোস্ট শুরু করুন)";
+            btn.disabled = false;
+        }
+    }
+</script>
 </body>
 </html>
