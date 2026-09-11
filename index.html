@@ -66,7 +66,7 @@
 
         <h3 style="margin-top: 20px;">Profile List:</h3>
         <div class="account-list" id="profileListContainer">
-            <div style="color: #888; text-align: center; padding: 10px;">কোনো প্রোফাইল তৈরি হয়নি</div>
+            <div style="color: #888; text-align: center; padding: 10px;">কোনো প্রোফাইল তৈরি হয়নি</div>
         </div>
 
         <button type="button" class="btn-create-post" onclick="openModal()">📝 Create Post (Create post and image)</button>
@@ -95,7 +95,7 @@
 
     <script>
     const MASTER_KEY = "MY_TWITTER_SECRET_MASTER_KEY_2026";
-    const BACKEND_URL = "https://newtwitter-production.up.railway.app"; // আপনার রেলওয়ের রিয়েল লিংক এখানে বসাবেন
+    const BACKEND_URL = "https://newtwitter-production.up.railway.app"; // আপনার রেলওয়ের রিয়েল লিংক
 
     let profiles = JSON.parse(localStorage.getItem('twitter_profiles')) || [];
     let savedPost = JSON.parse(localStorage.getItem('twitter_saved_post')) || { text: "", imageName: "কোনো ছবি নেই" };
@@ -132,7 +132,7 @@
         const usernamesText = document.getElementById('usernames_box').value.trim();
         const passwordsText = document.getElementById('passwords_box').value.trim();
 
-        if(!usernamesText || !passwordsText) { alert("ইউজারনেম ও পাসওয়ার্ড দিন!"); return; }
+        if(!usernamesText || !passwordsText) { alert("ইউজারনেম ও পাসওয়ার্ড দিন!"); return; }
 
         const users = usernamesText.split('\n').map(u => u.trim()).filter(u => u);
         const passes = passwordsText.split('\n').map(p => p.trim()).filter(p => p);
@@ -156,12 +156,12 @@
                 profiles = result.profiles || [];
                 localStorage.setItem('twitter_profiles', JSON.stringify(profiles));
                 updateProfileUI();
-                alert(result.message || "সফলভাবে লগইন হয়েছে!");
+                alert(result.message || "সফলভাবে লগইন হয়েছে!");
             } else {
-                alert("ত্রুটি: " + (result.message || "লগইন ব্যর্থ হয়েছে"));
+                alert("ত্রুটি: " + (result.message || "লগইন ব্যর্থ হয়েছে"));
             }
         } catch (err) {
-            alert("সার্ভারের সাথে যোগাযোগ করতে সমস্যা হয়েছে!");
+            alert("সার্ভারের সাথে যোগাযোগ করতে সমস্যা হয়েছে!");
         } finally {
             btn.innerText = "🔄 Login and create a profile";
             btn.disabled = false;
@@ -171,7 +171,7 @@
     function updateProfileUI() {
         const container = document.getElementById('profileListContainer');
         if(profiles.length === 0) {
-            container.innerHTML = '<div style="color: #888; text-align: center; padding: 10px;">কোনো প্রোফাইল তৈরি হয়নি</div>';
+            container.innerHTML = '<div style="color: #888; text-align: center; padding: 10px;">কোনো প্রোফাইল তৈরি হয়নি</div>';
             return;
         }
         container.innerHTML = '';
@@ -213,7 +213,7 @@
         document.getElementById('previewText').innerText = savedPost.text;
         document.getElementById('previewImage').innerText = "ফাইল: " + savedPost.imageName;
         document.getElementById('postPreview').style.display = 'block';
-        alert("পোস্ট সেভ হয়েছে!");
+        alert("পোস্ট সেভ হয়েছে!");
         closeModal();
     }
 
@@ -242,9 +242,9 @@
             });
             
             const result = await response.json();
-            alert(result.message || "পোস্টিং সম্পন্ন হয়েছে!");
+            alert(result.message || "পোস্টিং সম্পন্ন হয়েছে!");
         } catch (err) {
-            alert("পোস্ট করতে সমস্যা হয়েছে!");
+            alert("পোস্ট করতে সমস্যা হয়েছে!");
         } finally {
             btn.innerText = "🚀 Start Post (Start posting on all profiles)";
             btn.disabled = false;
