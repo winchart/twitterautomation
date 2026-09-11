@@ -13,9 +13,10 @@
         .grid-box { display: flex; gap: 15px; margin-bottom: 15px; }
         .grid-col { flex: 1; }
         
-        /* সার্ভার স্ট্যাটাস ইন্ডিকেটর */
-        .status-box { display: flex; align-items: center; justify-content: space-between; background: #f1f1f1; padding: 8px 12px; border-radius: 5px; margin-bottom: 15px; font-size: 14px; }
-        .indicator { width: 12px; height: 12px; border-radius: 50%; display: inline-block; margin-right: 5px; }
+        /* শুধু ডট সংবলিত মিনিমাল স্ট্যাটাস বক্স */
+        .status-box { display: flex; align-items: center; justify-content: space-between; background: #f1f1f1; padding: 10px 15px; border-radius: 5px; margin-bottom: 15px; font-size: 14px; font-weight: bold; color: #444; }
+        .status-indicator-wrapper { display: flex; align-items: center; gap: 8px; }
+        .indicator { width: 14px; height: 14px; border-radius: 50%; display: inline-block; box-shadow: 0 0 5px rgba(0,0,0,0.2); }
         .offline { background-color: #dc3545; }
         .online { background-color: #28a745; }
 
@@ -42,44 +43,43 @@
 <body>
 
     <div class="container">
-        <h2>টুইটার অটোমেশন সিস্টেম</h2>
+        <h2>Twitter Automation System</h2>
         
-        <!-- অটোমেটিক ব্যাকএন্ড কানেকশন স্ট্যাটাস -->
+        <!-- আপডেট করা স্ট্যাটাস ডট বক্স -->
         <div class="status-box">
-            <span>সিস্টেম স্ট্যাটাস:</span>
-            <div>
+            <span>System Status:</span>
+            <div class="status-indicator-wrapper">
                 <span id="statusIndicator" class="indicator offline"></span>
-                <span id="statusText" style="font-weight: bold; color: #dc3545;">কানেকশন চেক হচ্ছে...</span>
             </div>
         </div>
 
         <!-- ইউজারনেম ও পাসওয়ার্ডের বক্স -->
         <div class="grid-box">
             <div class="grid-col">
-                <label>ইউজারনেমসমূহ (প্রতি লাইনে একটি)</label>
+                <label>Usernames (one per line)</label>
                 <textarea class="multi-input" id="usernames_box" placeholder="user1&#10;user2"></textarea>
             </div>
             <div class="grid-col">
-                <label>পাসওয়ার্ডসমূহ (প্রতি লাইনে একটি)</label>
+                <label>Passwords (one per line)</label>
                 <textarea class="multi-input" id="passwords_box" placeholder="pass1&#10;pass2"></textarea>
             </div>
         </div>
 
-        <button type="button" class="btn-login" id="loginBtn" onclick="startLogin()">🔄 লগইন করে প্রোফাইল তৈরি করুন</button>
+        <button type="button" class="btn-login" id="loginBtn" onclick="startLogin()">🔄 Login and create a profile</button>
 
-        <h3 style="margin-top: 20px;">প্রোফাইল লিস্ট:</h3>
+        <h3 style="margin-top: 20px;">Profile List:</h3>
         <div class="account-list" id="profileListContainer">
             <div style="color: #888; text-align: center; padding: 10px;">কোনো প্রোফাইল তৈরি হয়নি</div>
         </div>
 
-        <button type="button" class="btn-create-post" onclick="openModal()">📝 Create Post (পোস্ট ও ইমেজ তৈরি করুন)</button>
+        <button type="button" class="btn-create-post" onclick="openModal()">📝 Create Post (Create post and image)</button>
 
         <div id="postPreview" class="saved-post-box" style="display: none; margin-top: 10px;">
-            <b>সেভ করা পোস্ট:</b> <span id="previewText"></span><br>
+            <b>Saved post:</b> <span id="previewText"></span><br>
             <span id="previewImage" style="font-size: 12px; color: #555;"></span>
         </div>
 
-        <button type="button" class="btn-start" onclick="startPosting()">🚀 Start Post (সব প্রোফাইলে পোস্ট শুরু করুন)</button>
+        <button type="button" class="btn-start" onclick="startPosting()">🚀 Start Post (Start posting on all profiles)</button>
     </div>
 
     <!-- Create Post পপ-আপ -->
@@ -99,7 +99,6 @@
 
     <script>
     const MASTER_KEY = "MY_TWITTER_SECRET_MASTER_KEY_2026";
-    // নতুন হোস্টিং ডোমেইন লিংক এখানে আপডেট করা হলো
     const BACKEND_URL = "http://geldspot.com";
 
     let profiles = JSON.parse(localStorage.getItem('twitter_profiles')) || [];
@@ -107,7 +106,6 @@
 
     async function checkMasterConnection() {
         const indicator = document.getElementById('statusIndicator');
-        const statusText = document.getElementById('statusText');
 
         try {
             const response = await fetch(`${BACKEND_URL}/`, {
@@ -116,15 +114,11 @@
             });
             if (response.ok) {
                 indicator.className = "indicator online";
-                statusText.innerText = "সক্রিয় ও সংযুক্ত";
-                statusText.style.color = "#28a745";
             } else {
                 throw new Error();
             }
         } catch (err) {
             indicator.className = "indicator offline";
-            statusText.innerText = "সংযোগ বিচ্ছিন্ন";
-            statusText.style.color = "#dc3545";
         }
     }
 
@@ -175,7 +169,7 @@
         } catch (err) {
             alert("সার্ভারের সাথে যোগাযোগ করতে সমস্যা হয়েছে!");
         } finally {
-            btn.innerText = "🔄 লগইন করে প্রোফাইল তৈরি করুন";
+            btn.innerText = "🔄 Login and create a profile";
             btn.disabled = false;
         }
     }
@@ -258,7 +252,7 @@
         } catch (err) {
             alert("পোস্ট করতে সমস্যা হয়েছে!");
         } finally {
-            btn.innerText = "🚀 Start Post (সব প্রোফাইলে পোস্ট শুরু করুন)";
+            btn.innerText = "🚀 Start Post (Start posting on all profiles)";
             btn.disabled = false;
         }
     }
