@@ -13,7 +13,6 @@
         .grid-box { display: flex; gap: 15px; margin-bottom: 15px; }
         .grid-col { flex: 1; }
         
-        /* শুধু ডট সংবলিত মিনিমাল স্ট্যাটাস বক্স */
         .status-box { display: flex; align-items: center; justify-content: space-between; background: #f1f1f1; padding: 10px 15px; border-radius: 5px; margin-bottom: 15px; font-size: 14px; font-weight: bold; color: #444; }
         .status-indicator-wrapper { display: flex; align-items: center; gap: 8px; }
         .indicator { width: 14px; height: 14px; border-radius: 50%; display: inline-block; box-shadow: 0 0 5px rgba(0,0,0,0.2); }
@@ -45,7 +44,6 @@
     <div class="container">
         <h2>Twitter Automation System</h2>
         
-        <!-- আপডেট করা স্ট্যাটাস ডট বক্স -->
         <div class="status-box">
             <span>System Status:</span>
             <div class="status-indicator-wrapper">
@@ -53,7 +51,6 @@
             </div>
         </div>
 
-        <!-- ইউজারনেম ও পাসওয়ার্ডের বক্স -->
         <div class="grid-box">
             <div class="grid-col">
                 <label>Usernames (one per line)</label>
@@ -82,7 +79,6 @@
         <button type="button" class="btn-start" onclick="startPosting()">🚀 Start Post (Start posting on all profiles)</button>
     </div>
 
-    <!-- Create Post পপ-আপ -->
     <div id="postModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeModal()">&times;</span>
@@ -99,14 +95,13 @@
 
     <script>
     const MASTER_KEY = "MY_TWITTER_SECRET_MASTER_KEY_2026";
-    const BACKEND_URL = "https://newtwitter-production.up.railway.app";
+    const BACKEND_URL = "https://আপনার-রেলওয়ে-লিংক.up.railway.app"; // আপনার রেলওয়ের রিয়েল লিংক এখানে বসাবেন
 
     let profiles = JSON.parse(localStorage.getItem('twitter_profiles')) || [];
     let savedPost = JSON.parse(localStorage.getItem('twitter_saved_post')) || { text: "", imageName: "কোনো ছবি নেই" };
 
     async function checkMasterConnection() {
         const indicator = document.getElementById('statusIndicator');
-
         try {
             const response = await fetch(`${BACKEND_URL}/`, {
                 method: 'GET',
@@ -125,7 +120,6 @@
     window.onload = function() {
         checkMasterConnection();
         updateProfileUI();
-        
         if(savedPost.text) {
             document.getElementById('previewText').innerText = savedPost.text;
             document.getElementById('previewImage').innerText = "ফাইল: " + savedPost.imageName;
